@@ -1,0 +1,20 @@
+{
+	"name": "albertofem/wiser",
+	"description": "Enhanced PHP template engine",
+	"keywords": ["template engine"],
+	"homepage": "http://albertofem.com",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Alberto Fernandez",
+			"email": "albertofem@gmail.com"
+		}
+	],
+	"require": {
+		"php": ">=5.3.3",
+		"symfony/finder": "2.1.*"
+	},
+	"autoload": {
+		"psr-0": { "Wiser": "src/" }
+	}
+}

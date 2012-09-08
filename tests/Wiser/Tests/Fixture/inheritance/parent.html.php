@@ -1,0 +1,1 @@
+Test-<? $this->block('test'); ?>Parent content<? $this->endblock(); ?>
