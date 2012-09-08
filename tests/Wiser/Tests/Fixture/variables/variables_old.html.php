@@ -1,1 +1,1 @@
-<? echo $this->myVar; ?>-<? echo $this->get('otherVar'); ?>
+<?php $this->myVar; ?>-<?php echo $this->get('otherVar'); ?>
