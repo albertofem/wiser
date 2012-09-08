@@ -62,7 +62,8 @@ class Wiser
 	{
 		$templates = $this->findTemplates($file);
 
-		$fileName = array_shift(array_keys(iterator_to_array($templates)));
+		$fileName = array_keys(iterator_to_array($templates));
+		$fileName = array_shift($fileName);
 
 		if(!isset($this->views[$fileName]))
 			$this->views[$fileName] = new View($fileName);
