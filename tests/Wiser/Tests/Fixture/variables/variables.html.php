@@ -1,1 +1,1 @@
-<?= $myVar; ?>
+<? echo $myVar; ?>
