@@ -25,4 +25,4 @@ If you're using **PHP >= 5.4.***
 
 If you're using **PHP <= 5.3.***
 
-    <? php echo $myVar; ?>
+    <?php echo $myVar; ?>
