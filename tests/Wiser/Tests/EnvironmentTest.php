@@ -152,7 +152,9 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
 		$this->getEnvironment()->addExtension($extension);
 
+		$envGlobals = $this->getEnvironment()->getGlobals();
+
 		$this->assertArrayHasKey('test', $this->getEnvironment()->getGlobals());
-		$this->assertEquals('global', $this->getEnvironment()->getGlobals()['test']);
+		$this->assertEquals('global', $envGlobals['test']);
 	}
 }

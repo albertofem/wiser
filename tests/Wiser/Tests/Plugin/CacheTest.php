@@ -11,9 +11,32 @@ use Wiser\Plugin\Cache;
 use Wiser\View;
 use Wiser\Event\GetViewEvent;
 use Wiser\Wiser;
+use Symfony\Component\Finder\Finder;
 
 class CacheTest extends \PHPUnit_Framework_TestCase
 {
+	public static function deleteCacheDir()
+	{
+		$finder = new Finder;
+		$finder->files()->in(__DIR__ . '/../Fixture/cache_dir/')
+			->name("*.*");
+
+		foreach($finder as $file)
+		{
+			unlink($file);
+		}
+	}
+
+	public static function setUpBeforeClass()
+	{
+		self::deleteCacheDir();
+	}
+
+	public static function tearDownAfterClass()
+	{
+		self::deleteCacheDir();
+	}
+
 	/**
  	 * @expectedException \InvalidArgumentException
 	 */
