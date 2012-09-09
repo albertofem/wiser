@@ -10,9 +10,9 @@ Usage
 
 Basic usage example:
 
-    $config = array('template_path' => __DIR__ . '/views/);
-
     use Wiser\Wiser;
+    
+    $config = array('template_path' => __DIR__ . '/views/);
     
     $wiser = new Wiser($config);
     $wiser->render('template.html.php', array('myVar' => 'test'));
