@@ -13,9 +13,25 @@ namespace Wiser\Tests;
 
 use Wiser\View;
 use Wiser\Wiser;
+use Wiser\Tests\Fixture\Extension\TestExtension1;
 
 class ViewTest extends \PHPUnit_Framework_TestCase
 {
+	/**
+	 * @var Wiser
+	 */
+	private static $wiser;
+
+	public static function setUpBeforeClass()
+	{
+		self::$wiser = new Wiser(array('templatePath' => __DIR__ . '/Fixture/'));
+	}
+
+	public function getWiser()
+	{
+		return self::$wiser;
+	}
+
 	/**
  	 * @expectedException \InvalidArgumentException
 	 */
@@ -60,6 +76,20 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 		$view = new View(__DIR__ . '/Fixture/variables/variables_old.html.php');
 
 		$view->get('invalid');
+	}
+
+	public function testGlobalExists()
+	{
+		$extension = new TestExtension1;
+
+		$this->getWiser()->getEnvironment()->addExtension($extension);
+
+		$view = new View(__DIR__ . '/Fixture/variables/global.html.php');
+		$view->setWiser($this->getWiser());
+
+		$output = $view->render();
+
+		$this->assertEquals('global', $output);
 	}
 
 	/*

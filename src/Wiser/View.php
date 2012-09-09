@@ -11,7 +11,7 @@
 
 namespace Wiser;
 
-use Wiser\View\Block;
+use Wiser\Event\GetViewEvent;
 
 class View
 {
@@ -42,6 +42,10 @@ class View
 
 	private $currentBlock;
 
+	private $constructVariables = true;
+
+	private $hash = null;
+
 	public function __construct($filename)
 	{
 		if(!is_readable($filename))
@@ -57,43 +61,29 @@ class View
 
 	public function render(Array $parameters = array())
 	{
+		if(!is_null($this->wiser))
+		{
+			$this->wiser->getEventDispatcher()->dispatch(Event::onRenderStart, new GetViewEvent($this));
+		}
+
 		$this->setParameters($parameters);
 
 		return $this->getOutput();
-	}
-
-	public function block($name)
-	{
-		$this->currentBlock = $name;
-		$this->blocks[$name] = new Block($name);
-
-		ob_start();
-	}
-
-	public function parent()
-	{
-		if(is_null($this->parent))
-			throw new \ErrorException("Cannot display parent content in block '" .$this->currentBlock. "' as this view has no parent");
-	}
-
-	public function endblock()
-	{
-		$blockContent = ob_get_clean();
-
-		$this->blocks[$this->currentBlock]->setContent($blockContent);
 	}
 
 	private function getOutput()
 	{
 		ob_start();
 
-		if(!is_null($this->parent))
-			$this->parent->getOutput();
-
 		// construct variables
-		foreach($this->parameters as $variable => $value)
+		if($this->constructVariables)
 		{
-			$$variable = $value;
+			$this->constructVariables();
+
+			foreach($this->parameters as $variable => $value)
+			{
+				$$variable = $value;
+			}
 		}
 
 		require $this->fileName;
@@ -101,9 +91,14 @@ class View
 		return ob_get_clean();
 	}
 
-	public function extend($file)
+	private function constructVariables()
 	{
-		$this->parent = $this->wiser->getView($file);
+		if(!is_null($this->wiser))
+		{
+			$this->parameters = array_merge($this->parameters, $this->wiser->getEnvironment()->getGlobals());
+		}
+
+		return $this->parameters;
 	}
 
 	public function setParameters($parameters)
@@ -127,5 +122,44 @@ class View
 	public function __get($parameter)
 	{
 		return $this->get($parameter);
+	}
+
+	public function __call($name, $arguments)
+	{
+		$this->wiser->getEnvironment()->callExtension($name, $arguments);
+	}
+
+	public function setConstructVariables($constructVariables)
+	{
+		$this->constructVariables = $constructVariables;
+	}
+
+	public function getConstructVariables()
+	{
+		return $this->constructVariables;
+	}
+
+	/**
+	 * @param string $fileName
+	 */
+	public function setFileName($fileName)
+	{
+		$this->fileName = $fileName;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFileName()
+	{
+		return $this->fileName;
+	}
+
+	public function getHash()
+	{
+		if(is_null($this->hash))
+			$this->hash = md5(spl_object_hash($this));
+
+		return $this->hash;
 	}
 }

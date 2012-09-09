@@ -11,7 +11,10 @@
 
 namespace Wiser;
 
+use Wiser\Plugin\AbstractPlugin;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Wiser\Event\GetViewEvent;
 
 class Wiser
 {
@@ -24,6 +27,11 @@ class Wiser
 	 * @var array
 	 */
 	private $views;
+
+	/**
+	 * @var EventDispatcher
+	 */
+	private $eventDispatcher;
 
 	public function __construct($environment = null)
 	{
@@ -40,6 +48,7 @@ class Wiser
 			$environment = new Environment($environment);
 
 		$this->environment = $environment;
+		$this->eventDispatcher = new EventDispatcher;
 	}
 
 	/**
@@ -58,6 +67,18 @@ class Wiser
 		return $this->environment;
 	}
 
+	public function render($file, Array $parameters = array())
+	{
+		$view = $this->getView($file);
+
+		$view->render($parameters);
+	}
+
+	/**
+	 * @param $file
+	 *
+	 * @return View
+	 */
 	public function getView($file)
 	{
 		$templates = $this->findTemplates($file);
@@ -66,7 +87,12 @@ class Wiser
 		$fileName = array_shift($fileName);
 
 		if(!isset($this->views[$fileName]))
-			$this->views[$fileName] = new View($fileName);
+		{
+			$view = new View($fileName);
+			$view->setWiser($this);
+
+			$this->views[$fileName] = $view;
+		}
 
 		return $this->views[$fileName];
 	}
@@ -83,5 +109,13 @@ class Wiser
 			throw new \InvalidArgumentException("The template file '" .$file. "' is ambiguous");
 
 		return $templates;
+	}
+
+	/**
+	 * @return \Symfony\Component\EventDispatcher\EventDispatcher
+	 */
+	public function getEventDispatcher()
+	{
+		return $this->eventDispatcher;
 	}
 }
